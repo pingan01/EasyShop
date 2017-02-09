@@ -13,10 +13,26 @@ import android.widget.EditText;
 
 import com.zx.easyshop.R;
 import com.zx.easyshop.commons.ActivityUtils;
+import com.zx.easyshop.commons.LogUtils;
+import com.zx.easyshop.commons.RegexUtils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.FormBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
+import okhttp3.logging.HttpLoggingInterceptor;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -91,7 +107,69 @@ public class RegisterActivity extends AppCompatActivity {
 
     @OnClick(R.id.btn_register)
     public void onClick(View view) {
+        if (RegexUtils.verifyUsername(userName) != RegexUtils.VERIFY_SUCCESS) {
+            activityUtils.showToast("账号为中文，字母或数字，长度为4~20，一个中文算2个长度");
+            return;
+        } else if (RegexUtils.verifyPassword(password) != RegexUtils.VERIFY_SUCCESS) {
+            activityUtils.showToast("密码以数字或字母开头，长度在6~18之间，只能包含字符、数字和下划线");
+            return;
+        } else if (!TextUtils.equals(password, pwd_again)) {
+            activityUtils.showToast("两次输入的密码不同！");
+            return;
+        }
+//        activityUtils.showToast("点击了注册按钮");
 
-        activityUtils.showToast("点击了注册按钮");
+//        //请求体:数据当做JSON格式的
+//        JSONObject jsonObject = new JSONObject();
+//        try {
+//            jsonObject.put("username", userName);
+//            jsonObject.put("password", password);
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
+//        String json = jsonObject.toString();
+//        RequestBody requestBody = RequestBody.create(null, json);
+
+
+        //OKHttp提供的请求体：构造者模式
+        final RequestBody requestBody = new FormBody.Builder()
+                .add("username", userName)
+                .add("password", password)
+                .build();
+        //日志拦截器
+        HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor();
+        httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);//设置拦截级别
+
+        //创建客户端
+        OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                .addInterceptor(httpLoggingInterceptor)//添加日志拦截器
+                .build();
+        //构建请求：Post方式，添加请求体
+        final Request request = new Request.Builder()//构造器模式
+                .url("http://wx.feicuiedu.com:9094/yitao/UserWeb?method=register")
+                .post(requestBody)//添加请求体
+                .build();
+
+        //客户端发送请求方式：异步回调
+        okHttpClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                //超时或者没有连接,在后台线程中
+                LogUtils.e("网络请求失败");
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                //连接成功，在后台线程中
+                LogUtils.e("网络请求成功");
+
+                //拿到响应，判断网络响应是否成功（200--299之间）
+                if (response.isSuccessful()) {
+                    ResponseBody responseBody = response.body();
+                    LogUtils.e("响应体为:" + responseBody.toString());
+                }
+            }
+        });
     }
+
 }

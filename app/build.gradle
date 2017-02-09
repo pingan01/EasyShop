@@ -34,4 +34,10 @@ dependencies {
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
     //圆形控件
     compile 'com.pkmmte.view:circularimageview:1.1'
+    //OkHttp网络请求
+    compile 'com.squareup.okhttp3:okhttp:3.6.0'
+    //日志拦截器
+    compile 'com.squareup.okhttp3:logging-interceptor:3.4.1'
+    //GSON解析
+    compile 'com.google.code.gson:gson:2.8.0'
 }
