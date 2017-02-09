@@ -14,10 +14,23 @@ import android.widget.TextView;
 
 import com.zx.easyshop.R;
 import com.zx.easyshop.commons.ActivityUtils;
+import com.zx.easyshop.commons.LogUtils;
+import com.zx.easyshop.network.EasyShopApi;
+import com.zx.easyshop.network.EasyShopClient;
+
+import java.io.IOException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.FormBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import okhttp3.logging.HttpLoggingInterceptor;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -88,13 +101,15 @@ public class LoginActivity extends AppCompatActivity {
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
             }
+
             //这里的s表示改变之后的内容，通常start和count组合，可以在s中读取本次改变字段中新的内容。
             //而before表示被改变的内容的数量。
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
 
             }
-           //表示最终的状态
+
+            //表示最终的状态
             @Override
             public void afterTextChanged(Editable s) {
                 userName = et_username.getText().toString();
@@ -109,10 +124,24 @@ public class LoginActivity extends AppCompatActivity {
 
     @OnClick({R.id.btn_login, R.id.tv_register})
     public void onClick(View view) {
-        if (view.getId() == btn_login.getId()) {
-            activityUtils.showToast("点击了登陆按钮");
-        } else if (view.getId() == tv_register.getId()) {
+        if (view.getId() == tv_register.getId()) {
             activityUtils.startActivity(RegisterActivity.class);
+        } else if (view.getId() == btn_login.getId()) {
+            activityUtils.showToast("点击了登陆按钮");
+
+            //发送请求
+            Call call = EasyShopClient.getInstance().registerOrLogin(userName, pwd, EasyShopApi.BASE_URL + EasyShopApi.LOGIN);
+            call.enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    LogUtils.e("登陆失败");
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    LogUtils.e("登陆成功");
+                }
+            });
         }
     }
 }

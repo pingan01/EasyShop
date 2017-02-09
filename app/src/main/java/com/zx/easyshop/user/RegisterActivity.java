@@ -15,6 +15,8 @@ import com.zx.easyshop.R;
 import com.zx.easyshop.commons.ActivityUtils;
 import com.zx.easyshop.commons.LogUtils;
 import com.zx.easyshop.commons.RegexUtils;
+import com.zx.easyshop.network.EasyShopApi;
+import com.zx.easyshop.network.EasyShopClient;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -117,7 +119,7 @@ public class RegisterActivity extends AppCompatActivity {
             activityUtils.showToast("两次输入的密码不同！");
             return;
         }
-//        activityUtils.showToast("点击了注册按钮");
+        activityUtils.showToast("点击了注册按钮");
 
 //        //请求体:数据当做JSON格式的
 //        JSONObject jsonObject = new JSONObject();
@@ -132,26 +134,28 @@ public class RegisterActivity extends AppCompatActivity {
 
 
         //OKHttp提供的请求体：构造者模式
-        final RequestBody requestBody = new FormBody.Builder()
-                .add("username", userName)
-                .add("password", password)
-                .build();
-        //日志拦截器
-        HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor();
-        httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);//设置拦截级别
+//        final RequestBody requestBody = new FormBody.Builder()
+//                .add("username", userName)
+//                .add("password", password)
+//                .build();
+//        //日志拦截器
+//        HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor();
+//        httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);//设置拦截级别
+//
+//        //创建客户端
+//        OkHttpClient okHttpClient = new OkHttpClient.Builder()
+//                .addInterceptor(httpLoggingInterceptor)//添加日志拦截器
+//                .build();
+//        //构建请求：Post方式，添加请求体
+//        final Request request = new Request.Builder()//构造器模式
+//                .url("http://wx.feicuiedu.com:9094/yitao/UserWeb?method=register")
+//                .post(requestBody)//添加请求体
+//                .build();
 
-        //创建客户端
-        OkHttpClient okHttpClient = new OkHttpClient.Builder()
-                .addInterceptor(httpLoggingInterceptor)//添加日志拦截器
-                .build();
-        //构建请求：Post方式，添加请求体
-        final Request request = new Request.Builder()//构造器模式
-                .url("http://wx.feicuiedu.com:9094/yitao/UserWeb?method=register")
-                .post(requestBody)//添加请求体
-                .build();
 
         //客户端发送请求方式：异步回调
-        okHttpClient.newCall(request).enqueue(new Callback() {
+        Call call = EasyShopClient.getInstance().registerOrLogin(userName, password, EasyShopApi.BASE_URL + EasyShopApi.REGISTER);
+        call.enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 //超时或者没有连接,在后台线程中
