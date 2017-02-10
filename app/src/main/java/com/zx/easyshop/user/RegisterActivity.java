@@ -11,12 +11,15 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.google.gson.Gson;
 import com.zx.easyshop.R;
 import com.zx.easyshop.commons.ActivityUtils;
 import com.zx.easyshop.commons.LogUtils;
 import com.zx.easyshop.commons.RegexUtils;
+import com.zx.easyshop.model.UserResult;
 import com.zx.easyshop.network.EasyShopApi;
 import com.zx.easyshop.network.EasyShopClient;
+import com.zx.easyshop.network.UICallback;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -26,6 +29,7 @@ import java.io.IOException;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.Unbinder;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.FormBody;
@@ -50,6 +54,7 @@ public class RegisterActivity extends AppCompatActivity {
     Button btn_register;
 
     protected ActivityUtils activityUtils;
+    protected Unbinder unbinder;
     protected String userName;
     protected String password;
     protected String pwd_again;
@@ -58,7 +63,7 @@ public class RegisterActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
-        ButterKnife.bind(this);
+        unbinder = ButterKnife.bind(this);
         activityUtils = new ActivityUtils(this);
         init();
     }
@@ -132,48 +137,30 @@ public class RegisterActivity extends AppCompatActivity {
 //        String json = jsonObject.toString();
 //        RequestBody requestBody = RequestBody.create(null, json);
 
-
-        //OKHttp提供的请求体：构造者模式
-//        final RequestBody requestBody = new FormBody.Builder()
-//                .add("username", userName)
-//                .add("password", password)
-//                .build();
-//        //日志拦截器
-//        HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor();
-//        httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);//设置拦截级别
-//
-//        //创建客户端
-//        OkHttpClient okHttpClient = new OkHttpClient.Builder()
-//                .addInterceptor(httpLoggingInterceptor)//添加日志拦截器
-//                .build();
-//        //构建请求：Post方式，添加请求体
-//        final Request request = new Request.Builder()//构造器模式
-//                .url("http://wx.feicuiedu.com:9094/yitao/UserWeb?method=register")
-//                .post(requestBody)//添加请求体
-//                .build();
-
-
         //客户端发送请求方式：异步回调
         Call call = EasyShopClient.getInstance().registerOrLogin(userName, password, EasyShopApi.BASE_URL + EasyShopApi.REGISTER);
-        call.enqueue(new Callback() {
+        call.enqueue(new UICallback() {
             @Override
-            public void onFailure(Call call, IOException e) {
-                //超时或者没有连接,在后台线程中
-                LogUtils.e("网络请求失败");
+            public void onFailureUI(Call call, IOException e) {
+
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                //连接成功，在后台线程中
-                LogUtils.e("网络请求成功");
-
-                //拿到响应，判断网络响应是否成功（200--299之间）
-                if (response.isSuccessful()) {
-                    ResponseBody responseBody = response.body();
-                    LogUtils.e("响应体为:" + responseBody.toString());
+            public void onResponseUI(Call call, String body) {
+                UserResult result = new Gson().fromJson(body, UserResult.class);
+                if (result.getCode() == 1) {
+                    String hx_id = result.getData().getHx_ID();
+                    LogUtils.e("环信ID：" + hx_id);
+                    activityUtils.startActivity(LoginActivity.class);
                 }
             }
         });
+
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unbinder.unbind();
+    }
 }

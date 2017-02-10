@@ -1,5 +1,8 @@
 package com.zx.easyshop.network;
 
+import android.graphics.Canvas;
+import android.view.View;
+
 import java.io.IOException;
 import java.net.URL;
 
@@ -17,6 +20,7 @@ import okhttp3.logging.HttpLoggingInterceptor;
  * <p>
  * 易淘客户端创建
  */
+
 
 public class EasyShopClient {
     //单例模式：客户端允许只有一个

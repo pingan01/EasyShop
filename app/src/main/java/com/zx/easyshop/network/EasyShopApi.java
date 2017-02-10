@@ -5,7 +5,6 @@ package com.zx.easyshop.network;
  * <p>
  * 易淘链接地址
  */
-
 public class EasyShopApi {
     //服务器地址
     public static final String BASE_URL = "http://wx.feicuiedu.com:9094/yitao/";
