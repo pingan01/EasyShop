@@ -15,7 +15,21 @@
     <string name="login">登录</string>
     <string name="register">注册</string>
     <string name="fast_register">快速注册</string>
+    <string name="username_pwd_rule">用户名或密码</string>
+    <string name="OK">确定</string>
+    <string name="login_out">退出当前登录</string>
+    <string name="me_person_info">个人信息</string>
+    <string name="nickname">昵称</string>
+    <string name="nickname_update">昵称修改</string>
+    <string name="nickname_info">1.通过昵称添加好友,没有昵称无法添加好友 \n2.此昵称非用户名,在联系人和市场等场景显示</string>
+    <string name="nickname_rules">昵称为中文，字母或数字，长度为1~12，一个中文算2个长度</string>
+    <string name="goods_name">名称:</string>
+    <string name="goods_price">价格:</string>
+    <string name="goods_money">%s￥</string>
 
+    <string name="popu_album">相册</string>
+    <string name="popu_camear">相机</string>
+    <string name="popu_cancle">取消</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

@@ -1,5 +1,6 @@
-package com.zx.easyshop.user;
+package com.zx.easyshop.user.register;
 
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -12,17 +13,18 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.google.gson.Gson;
+import com.hannesdorfmann.mosby.mvp.MvpActivity;
 import com.zx.easyshop.R;
 import com.zx.easyshop.commons.ActivityUtils;
 import com.zx.easyshop.commons.LogUtils;
 import com.zx.easyshop.commons.RegexUtils;
+import com.zx.easyshop.components.AlertDialogFragment;
+import com.zx.easyshop.components.ProgressDialogFragment;
 import com.zx.easyshop.model.UserResult;
 import com.zx.easyshop.network.EasyShopApi;
 import com.zx.easyshop.network.EasyShopClient;
 import com.zx.easyshop.network.UICallback;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.zx.easyshop.user.login.LoginActivity;
 
 import java.io.IOException;
 
@@ -31,16 +33,8 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.FormBody;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
-import okhttp3.ResponseBody;
-import okhttp3.logging.HttpLoggingInterceptor;
 
-public class RegisterActivity extends AppCompatActivity {
+public class RegisterActivity extends MvpActivity<RegisterView, RegisterPresenter> implements RegisterView {
 
     @BindView(R.id.toolbar)
     Toolbar toolbar;
@@ -54,6 +48,7 @@ public class RegisterActivity extends AppCompatActivity {
     Button btn_register;
 
     protected ActivityUtils activityUtils;
+    protected ProgressDialogFragment dialogFragment;
     protected Unbinder unbinder;
     protected String userName;
     protected String password;
@@ -66,6 +61,13 @@ public class RegisterActivity extends AppCompatActivity {
         unbinder = ButterKnife.bind(this);
         activityUtils = new ActivityUtils(this);
         init();
+    }
+
+
+    @NonNull
+    @Override
+    public RegisterPresenter createPresenter() {
+        return new RegisterPresenter();//创建注册的业务类
     }
 
     //实现菜单点击事件
@@ -115,16 +117,22 @@ public class RegisterActivity extends AppCompatActivity {
     @OnClick(R.id.btn_register)
     public void onClick(View view) {
         if (RegexUtils.verifyUsername(userName) != RegexUtils.VERIFY_SUCCESS) {
-            activityUtils.showToast("账号为中文，字母或数字，长度为4~20，一个中文算2个长度");
+            String msg = "账号为中文，字母或数字，长度为4~20，一个中文算2个长度";
+            showUserPassWordError(msg);
             return;
         } else if (RegexUtils.verifyPassword(password) != RegexUtils.VERIFY_SUCCESS) {
-            activityUtils.showToast("密码以数字或字母开头，长度在6~18之间，只能包含字符、数字和下划线");
+            String msg = "密码以数字或字母开头，长度在6~18之间，只能包含字符、数字和下划线";
+            showUserPassWordError(msg);
             return;
         } else if (!TextUtils.equals(password, pwd_again)) {
-            activityUtils.showToast("两次输入的密码不同！");
+            String msg = "两次输入的密码不同！";
+            showUserPassWordError(msg);
             return;
         }
         activityUtils.showToast("点击了注册按钮");
+
+        //业务类执行注册的业务
+        presenter.register(userName, password, EasyShopApi.BASE_URL + EasyShopApi.REGISTER);
 
 //        //请求体:数据当做JSON格式的
 //        JSONObject jsonObject = new JSONObject();
@@ -138,29 +146,53 @@ public class RegisterActivity extends AppCompatActivity {
 //        RequestBody requestBody = RequestBody.create(null, json);
 
         //客户端发送请求方式：异步回调
-        Call call = EasyShopClient.getInstance().registerOrLogin(userName, password, EasyShopApi.BASE_URL + EasyShopApi.REGISTER);
-        call.enqueue(new UICallback() {
-            @Override
-            public void onFailureUI(Call call, IOException e) {
-
-            }
-
-            @Override
-            public void onResponseUI(Call call, String body) {
-                UserResult result = new Gson().fromJson(body, UserResult.class);
-                if (result.getCode() == 1) {
-                    String hx_id = result.getData().getHx_ID();
-                    LogUtils.e("环信ID：" + hx_id);
-                    activityUtils.startActivity(LoginActivity.class);
-                }
-            }
-        });
-
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         unbinder.unbind();
+    }
+
+    //##########################################     视图接口的实现    ######################
+    @Override
+    public void showPgb() {
+        //关闭软键盘
+        activityUtils.hideSoftKeyboard();
+        //初始化进度条
+        if (dialogFragment == null) dialogFragment = new ProgressDialogFragment();
+        //如果进度条已经显示，则跳出
+        if (dialogFragment.isVisible()) return;
+        //进度条显示
+        dialogFragment.show(getSupportFragmentManager(), "progress_register_dialog_fragment");
+    }
+
+    @Override
+    public void hidePgb() {
+        dialogFragment.dismiss();
+    }
+
+    @Override
+    public void registerSuccess() {
+        //跳转：
+        activityUtils.startActivity(LoginActivity.class);
+        finish();
+    }
+
+    @Override
+    public void registerFailed() {
+        et_username.setText("");
+    }
+
+    @Override
+    public void showMsg(String msg) {
+        activityUtils.showToast(msg);
+    }
+
+    @Override
+    public void showUserPassWordError(String msg) {
+        //弹出对话框，提示错误信息
+        AlertDialogFragment fragment = AlertDialogFragment.newInstance(msg);
+        fragment.show(getSupportFragmentManager(), "用户名或密码");
     }
 }

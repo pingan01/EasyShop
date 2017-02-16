@@ -14,7 +14,6 @@ public class User {
      * "name": "yt59856b15cf394e7b84a7d48447d16098", 环信ID
      * "uuid": "0F8EC12223174657B2E842076D54C361",  用户表主键
      * "password": "123456"  用户密码
-     *
      */
     @SerializedName("username")
     private String name;
@@ -22,7 +21,7 @@ public class User {
     private String hx_ID;
     @SerializedName("uuid")
     private String table_ID;
-    private int password;
+    private String password;
     @SerializedName("other")
     private String image;
     private String nickname;//登录时的昵称
@@ -67,11 +66,11 @@ public class User {
         this.table_ID = table_ID;
     }
 
-    public int getPassword() {
+    public String getPassword() {
         return password;
     }
 
-    public void setPassword(int password) {
+    public void setPassword(String password) {
         this.password = password;
     }
 }

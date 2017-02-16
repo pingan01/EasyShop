@@ -1,5 +1,6 @@
-package com.zx.easyshop.user;
+package com.zx.easyshop.user.login;
 
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -13,14 +14,17 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
+import com.hannesdorfmann.mosby.mvp.MvpActivity;
 import com.zx.easyshop.R;
 import com.zx.easyshop.commons.ActivityUtils;
 import com.zx.easyshop.commons.LogUtils;
-import com.zx.easyshop.model.LoginResult;
+import com.zx.easyshop.components.ProgressDialogFragment;
+import com.zx.easyshop.main.MainActivity;
 import com.zx.easyshop.model.UserResult;
 import com.zx.easyshop.network.EasyShopApi;
 import com.zx.easyshop.network.EasyShopClient;
 import com.zx.easyshop.network.UICallback;
+import com.zx.easyshop.user.register.RegisterActivity;
 
 import java.io.IOException;
 
@@ -29,16 +33,8 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.FormBody;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
-import okhttp3.ResponseBody;
-import okhttp3.logging.HttpLoggingInterceptor;
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends MvpActivity<LoginView, LoginPresenter> implements LoginView {
 
     @BindView(R.id.et_username)
     EditText et_username;
@@ -52,6 +48,7 @@ public class LoginActivity extends AppCompatActivity {
     Toolbar toolbar;
 
     protected ActivityUtils activityUtils;
+    protected ProgressDialogFragment dialogFragment;
     protected Unbinder unbinder;
     protected String userName;
     protected String pwd;
@@ -64,6 +61,12 @@ public class LoginActivity extends AppCompatActivity {
         activityUtils = new ActivityUtils(this);
 
         init();
+    }
+
+    @NonNull
+    @Override
+    public LoginPresenter createPresenter() {
+        return new LoginPresenter();
     }
 
     //实现菜单点击事件
@@ -134,27 +137,9 @@ public class LoginActivity extends AppCompatActivity {
         if (view.getId() == tv_register.getId()) {
             activityUtils.startActivity(RegisterActivity.class);
         } else if (view.getId() == btn_login.getId()) {
+            //调用业务类的登陆方法
+            presenter.login(userName, pwd, EasyShopApi.BASE_URL + EasyShopApi.LOGIN);
             activityUtils.showToast("点击了登陆按钮");
-
-            //发送请求
-            Call call = EasyShopClient.getInstance().registerOrLogin(userName, pwd, EasyShopApi.BASE_URL + EasyShopApi.LOGIN);
-            call.enqueue(new UICallback() {
-                @Override
-                public void onFailureUI(Call call, IOException e) {
-
-                }
-
-                @Override
-                public void onResponseUI(Call call, String body) {
-                    LoginResult result = new Gson().fromJson(body, LoginResult.class);
-                    if (result.getCode() == 1) {
-                        String nickname = result.getData().getNickname();
-                        String hx_ID = result.getData().getHx_ID();
-                        LogUtils.e("昵称为：" + nickname);
-                        LogUtils.e("环信ID为：" + hx_ID);
-                    }
-                }
-            });
         }
     }
 
@@ -162,5 +147,36 @@ public class LoginActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         unbinder.unbind();
+    }
+
+    //###############################  视图接口相关 ###############
+
+    @Override
+    public void showPrb() {
+        activityUtils.hideSoftKeyboard();
+        if (dialogFragment == null) dialogFragment = new ProgressDialogFragment();
+        if (dialogFragment.isVisible()) return;
+        dialogFragment.show(getSupportFragmentManager(), "progress_login_dialog_fragment");
+    }
+
+    @Override
+    public void hidePrb() {
+        dialogFragment.dismiss();
+    }
+
+    @Override
+    public void loginFailed() {
+        et_username.setText("");
+    }
+
+    @Override
+    public void loginSuccess() {
+        activityUtils.startActivity(MainActivity.class);
+        finish();
+    }
+
+    @Override
+    public void showMsg(String msg) {
+        activityUtils.showToast(msg);
     }
 }

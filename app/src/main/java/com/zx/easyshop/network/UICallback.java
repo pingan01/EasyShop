@@ -22,6 +22,7 @@ public abstract class UICallback implements Callback {
 
     @Override
     public void onFailure(final Call call, final IOException e) {
+        //发送一个在主线程中运行的RUN方法
         handler.post(new Runnable() {
             @Override
             public void run() {
@@ -29,7 +30,6 @@ public abstract class UICallback implements Callback {
             }
         });
     }
-
     @Override
     public void onResponse(final Call call, final Response response) throws IOException {
         //判断是否响应成功
@@ -46,7 +46,7 @@ public abstract class UICallback implements Callback {
         });
     }
 
-    //在主线程中运行此方法
+    //在主线程中运行此方法：为抽象方法，具体执行内容在调用时去实现
     public abstract void onFailureUI(Call call, IOException e);
 
     public abstract void onResponseUI(Call call, String body);
