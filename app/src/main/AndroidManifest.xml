@@ -4,9 +4,9 @@
     package="com.zx.easyshop">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"></uses-permission>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
-    <uses-permission android:name="android.permission.CAMERA"></uses-permission>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CAMERA" />
 
     <application
         android:name=".EasyShopApplication"
@@ -27,7 +27,11 @@
         <activity android:name=".user.login.LoginActivity" />
         <activity android:name=".user.register.RegisterActivity" />
         <activity android:name=".main.me.personinfo.PersonActivity" />
-        <activity android:name=".main.me.personinfo.NickNameActivity"></activity>
+        <activity android:name=".main.me.personinfo.NickNameActivity" />
+        <activity android:name=".main.shop.detail.GoodsDetailActivity" />
+        <activity android:name=".main.shop.detail.GoodsDetailInfoActivity" />
+        <activity android:name=".main.me.mygoods.MyGoodsActivity" />
+        <activity android:name=".main.me.goodsupload.GoodsUpLoadActivity"></activity>
     </application>
 
 </manifest>

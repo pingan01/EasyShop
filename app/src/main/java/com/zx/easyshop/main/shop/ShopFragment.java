@@ -1,5 +1,6 @@
 package com.zx.easyshop.main.shop;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -13,6 +14,7 @@ import android.widget.TextView;
 import com.hannesdorfmann.mosby.mvp.MvpFragment;
 import com.zx.easyshop.R;
 import com.zx.easyshop.commons.ActivityUtils;
+import com.zx.easyshop.main.shop.detail.GoodsDetailActivity;
 import com.zx.easyshop.model.GoodsInfo;
 
 import java.util.List;
@@ -80,8 +82,9 @@ public class ShopFragment extends MvpFragment<ShopView, ShopPresenter> implement
         shopAdapter.setOnItemClickListener(new ShopAdapter.OnItemClickListener() {
             @Override
             public void onItemClicked(GoodsInfo goodsInfo) {
-                activityUtils.showToast("跳转到详情页,待实现");
-                // TODO: 2017/2/16 0016
+                //跳转到商品详情页面
+                Intent intent = GoodsDetailActivity.getStartIntent(getContext(), goodsInfo.getGoodsTable_ID(), 0);
+                startActivity(intent);
             }
         });
         mRecyclerView.setAdapter(shopAdapter);
@@ -147,7 +150,7 @@ public class ShopFragment extends MvpFragment<ShopView, ShopPresenter> implement
 
     @Override
     public void showRefreshEnd() {
-        activityUtils.showToast("没有新的商品了");
+//        activityUtils.showToast("没有新的商品了");
         //停止刷新
         mRefreshLayout.refreshComplete();
     }
@@ -178,7 +181,7 @@ public class ShopFragment extends MvpFragment<ShopView, ShopPresenter> implement
 
     @Override
     public void showLoadMoreEnd() {
-        activityUtils.showToast("没有更多数据");
+//        activityUtils.showToast("没有更多数据");
         mRefreshLayout.refreshComplete();
     }
 

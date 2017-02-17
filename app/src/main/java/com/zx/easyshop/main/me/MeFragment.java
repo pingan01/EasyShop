@@ -13,6 +13,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.zx.easyshop.R;
 import com.zx.easyshop.commons.ActivityUtils;
 import com.zx.easyshop.components.AvatarLoadOptions;
+import com.zx.easyshop.main.me.mygoods.MyGoodsActivity;
 import com.zx.easyshop.main.me.personinfo.PersonActivity;
 import com.zx.easyshop.model.CachePreferences;
 import com.zx.easyshop.network.EasyShopApi;
@@ -79,8 +80,8 @@ public class MeFragment extends Fragment {
                 activityUtils.startActivity(PersonActivity.class);
                 break;
             case R.id.tv_person_goods:
-                // TODO: 2017/2/14 0014 跳转到我的商品页面
-                activityUtils.showToast("我的商品页面，待实现");
+                //跳转到我的商品页面
+                activityUtils.startActivity(MyGoodsActivity.class);
                 break;
             case R.id.tv_goods_upload:
                 // TODO: 2017/2/14 0014 跳转到商品上传页面

@@ -1,15 +1,18 @@
 package com.zx.easyshop.network;
 
 import android.graphics.Canvas;
+import android.media.Image;
 import android.view.View;
 
 import com.google.gson.Gson;
 import com.zx.easyshop.model.CachePreferences;
+import com.zx.easyshop.model.GoodsUpLoad;
 import com.zx.easyshop.model.User;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -142,6 +145,51 @@ public class EasyShopClient {
                 .post(requestBody)
                 .build();
 
+        return okHttpClient.newCall(request);
+    }
+
+    //获取我的商品
+    public Call getMyGoods(int pageNo, String type, String master) {
+        RequestBody requestBody = new FormBody.Builder()
+                .add("pageNo", String.valueOf(pageNo))
+                .add("type", type)
+                .add("master", master)
+                .build();
+        Request request = new Request.Builder()
+                .url(EasyShopApi.BASE_URL + EasyShopApi.GETGOODS)
+                .post(requestBody)
+                .build();
+        return okHttpClient.newCall(request);
+    }
+
+    //删除商品
+    public Call deleteGoods(String uuid) {
+        RequestBody requestBody = new FormBody.Builder()
+                .add("uuid", uuid)
+                .build();
+        Request request = new Request.Builder()
+                .url(EasyShopApi.BASE_URL + EasyShopApi.DELETE)
+                .post(requestBody)
+                .build();
+        return okHttpClient.newCall(request);
+    }
+
+    //上传商品
+    public Call upLoadGoods(GoodsUpLoad goodsUpLoad, ArrayList<File> files) {
+        MultipartBody.Builder builder = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("good", gson.toJson(goodsUpLoad));
+        for (File file : files
+                ) {
+            builder.addFormDataPart("image", file.getName(), RequestBody.create(MediaType.parse("image/png"), file));
+
+        }
+        RequestBody body = builder.build();
+
+        Request request = new Request.Builder()
+                .url(EasyShopApi.BASE_URL + EasyShopApi.UPLOADGOODS)
+                .post(body)
+                .build();
         return okHttpClient.newCall(request);
     }
 }

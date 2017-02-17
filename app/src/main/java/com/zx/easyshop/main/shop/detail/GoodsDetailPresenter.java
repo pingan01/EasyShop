@@ -18,7 +18,7 @@ import okhttp3.Call;
  */
 
 public class GoodsDetailPresenter extends MvpNullObjectBasePresenter<GoodsDetailView> {
-
+    // TODO: 2017/2/17 0017 删除商品相关
     protected Call call;
 
     @Override
@@ -53,8 +53,7 @@ public class GoodsDetailPresenter extends MvpNullObjectBasePresenter<GoodsDetail
                     }
                     getView().setImageData(arrayList);
                     getView().setData(goodsDetail, result.getUser());
-                }
-                else {
+                } else {
                     getView().showError();
                 }
             }

@@ -67,7 +67,7 @@ public class ShopAdapter extends RecyclerView.Adapter<ShopAdapter.ShopViewHolder
         holder.imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (onItemClickListener == null)
+                if (onItemClickListener != null)
                     onItemClickListener.onItemClicked(datas.get(position));
             }
         });
