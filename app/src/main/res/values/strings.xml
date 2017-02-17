@@ -5,6 +5,7 @@
     <string name="main_message">消息</string>
     <string name="main_mail_list">通讯录</string>
     <string name="main_me">我的</string>
+    <string name="load_more_end">没有更多数据</string>
     <string name="load_more_error">加载时发生错误-_-!</string>
     <string name="load_more_empty">你没有上传过该类商品</string>
 

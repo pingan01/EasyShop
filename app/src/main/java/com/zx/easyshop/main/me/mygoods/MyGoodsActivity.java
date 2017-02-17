@@ -1,5 +1,6 @@
 package com.zx.easyshop.main.me.mygoods;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.GridLayoutManager;
@@ -7,6 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 
 import com.hannesdorfmann.mosby.mvp.MvpActivity;
@@ -14,10 +16,13 @@ import com.zx.easyshop.R;
 import com.zx.easyshop.commons.ActivityUtils;
 import com.zx.easyshop.main.shop.ShopAdapter;
 import com.zx.easyshop.main.shop.ShopView;
+import com.zx.easyshop.main.shop.detail.GoodsDetailActivity;
+import com.zx.easyshop.model.CachePreferences;
 import com.zx.easyshop.model.GoodsInfo;
 
 import java.util.List;
 
+import butterknife.BindString;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
@@ -37,6 +42,10 @@ public class MyGoodsActivity extends MvpActivity<ShopView, MyGoodsPresenter> imp
     TextView tvLoadError;
     @BindView(R.id.tv_load_empty)
     TextView tvLoadEmpty;
+    @BindString(R.string.load_more_end)
+
+    String load_more_end;//没有更多的数据
+
     protected ActivityUtils activityUtils;
     protected ShopAdapter mAdapter;
     protected Unbinder unbinder;
@@ -72,7 +81,9 @@ public class MyGoodsActivity extends MvpActivity<ShopView, MyGoodsPresenter> imp
             @Override
             public void onItemClicked(GoodsInfo goodsInfo) {
                 //跳转到我的商品详情页面
-                // TODO: 2017/2/17 0017 跳转个人商品详情页面
+                Intent intent = GoodsDetailActivity.getStartIntent(MyGoodsActivity.this, goodsInfo.getGoodsTable_ID(), 1);
+                //从我的商品页面跳转，状态为1
+                startActivity(intent);
             }
         });
         mRecyclerView.setAdapter(mAdapter);
@@ -162,56 +173,68 @@ public class MyGoodsActivity extends MvpActivity<ShopView, MyGoodsPresenter> imp
     //**********************************接口视图的相关实现
     @Override
     public void showRefresh() {
-
+        tvLoadEmpty.setVisibility(View.GONE);
+        tvLoadError.setVisibility(View.GONE);
     }
 
     @Override
     public void showRefreshError(String msg) {
-
+        mRefreshLayout.refreshComplete();
+        if (mAdapter.getItemCount() > 0) {
+            activityUtils.showToast(msg);
+            return;
+        }
+        tvLoadError.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void showRefreshEnd() {
-
+        mRefreshLayout.refreshComplete();
+        tvLoadEmpty.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void hideRefresh() {
-
+        mRefreshLayout.refreshComplete();
     }
 
     @Override
     public void showLoadMore() {
-
+        tvLoadError.setVisibility(View.GONE);
     }
 
     @Override
     public void showLoadMoreError(String msg) {
-
+        mRefreshLayout.refreshComplete();
+        if (mAdapter.getItemCount() > 0) {
+            activityUtils.showToast(msg);
+        }
+        tvLoadError.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void showLoadMoreEnd() {
-
+        activityUtils.showToast(load_more_end);
     }
 
     @Override
     public void hideLoadMore() {
-
+        mRefreshLayout.refreshComplete();
     }
 
     @Override
     public void addRefreshData(List<GoodsInfo> goodsInfos) {
-
+        mAdapter.clear();
+        if (goodsInfos != null) mAdapter.addData(goodsInfos);
     }
 
     @Override
     public void addLoadMoreData(List<GoodsInfo> goodsInfos) {
-
+        mAdapter.addData(goodsInfos);
     }
 
     @Override
     public void showMessage(String msg) {
-
+        activityUtils.showToast(msg);
     }
 }

@@ -18,8 +18,10 @@ import okhttp3.Call;
  */
 
 public class GoodsDetailPresenter extends MvpNullObjectBasePresenter<GoodsDetailView> {
-    // TODO: 2017/2/17 0017 删除商品相关
+
     protected Call call;
+    //删除商品
+    protected Call deleteCall;
 
     @Override
     public void detachView(boolean retainInstance) {
@@ -55,6 +57,31 @@ public class GoodsDetailPresenter extends MvpNullObjectBasePresenter<GoodsDetail
                     getView().setData(goodsDetail, result.getUser());
                 } else {
                     getView().showError();
+                }
+            }
+        });
+    }
+
+    //我的页面中删除商品
+    public void delete(String uuid) {
+        getView().showProgress();
+        deleteCall = EasyShopClient.getInstance().deleteGoods(uuid);
+        deleteCall.enqueue(new UICallback() {
+            @Override
+            public void onFailureUI(Call call, IOException e) {
+                getView().hideProgress();
+                getView().showMessage(e.getMessage());
+            }
+
+            @Override
+            public void onResponseUI(Call call, String body) {
+                getView().hideProgress();
+                GoodsDetailResult result = new Gson().fromJson(body, GoodsDetailResult.class);
+                if (result.getCode() == 1) {
+                    getView().deleteEnd();
+                    getView().showMessage("删除成功");
+                } else {
+                    getView().showMessage("删除失败");
                 }
             }
         });

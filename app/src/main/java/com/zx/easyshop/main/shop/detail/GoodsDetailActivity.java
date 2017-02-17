@@ -1,9 +1,11 @@
 package com.zx.easyshop.main.shop.detail;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -145,9 +147,21 @@ public class GoodsDetailActivity extends MvpActivity<GoodsDetailView, GoodsDetai
             return;
         }
         switch (view.getId()) {
+            //从我的商品页面跳转到商品详情界面
             case R.id.tv_goods_delete://删除
-                activityUtils.showToast("删除相关功能，待实现");
-                // TODO: 2017/2/16 0016 删除相关功能 
+                //删除图片功能：弹出对话框
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("商品删除");
+                builder.setMessage("是否删除该商品?");
+                builder.setPositiveButton("删除", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //执行业务类中的删除方法
+                        presenter.delete(str_uuid);
+                    }
+                });
+                builder.setNegativeButton("取消", null);
+                builder.create().show();
                 break;
             case R.id.btn_detail_message://发消息
                 activityUtils.showToast("环信发消息功能,待实现");
@@ -197,7 +211,8 @@ public class GoodsDetailActivity extends MvpActivity<GoodsDetailView, GoodsDetai
 
     @Override
     public void showError() {
-
+        tv_goods_error.setVisibility(View.VISIBLE);
+        toolbar.setTitle("商品过期不存在");
     }
 
     @Override
